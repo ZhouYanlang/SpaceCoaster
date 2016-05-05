@@ -1,28 +1,52 @@
-var person = game.Sphere( {
-    geometry: {
-        radius: 2
-    },
 
-    mass: 5,
-    onlyvis: false,
+const spaceship = game.ConvexModel({
+  geometry:{
+    path: 'assets/models/spaceship.json',
+    physics: 'assets/models/spaceship_low.json'
+  },
 
-    material: {
-        color: 0xffffff,
-        kind: "lambert",
-        rest: 0,
-        fri: 1
-    },
+  material: {
+  },
 
+  mass: 100,
+
+  pos: {
+      x: 0,
+      y: 0,
+      z: 0
+  },
+
+  rotation: {
+      x: 0,
+      z: 0,
+      y: 0,
+  },
+
+  scale: {
+      x: 1,
+      y: 1,
+      z: 1
+  },
+});
+
+/*const camera = new WHS.PerspectiveCamera({
     pos: {
-        x: 1000,
-        y: 1000,
-        z: 1000
+        x:0,
+        y:100,
+        z:0
     }
+});
 
-} );
+game.setCamera(camera);*/
 
 
-game.FPSControls( person, { // *WHS* object, Pointer lock controls object, Jquery blocker div selector.
-    block: document.getElementById('blocker'),
-    speed: 1 // 5
-} );
+spaceship.addTo(game, "wait").then(function () {
+
+    //spaceship.add(camera);
+
+    game.SpaceControls( spaceship, { // *WHS* object, Pointer lock controls object, Jquery blocker div selector.
+        block: document.getElementById('blocker'),
+        speed: 1 // 5
+    } );
+
+})

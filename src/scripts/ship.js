@@ -1,4 +1,4 @@
-const spaceship = game.Model({
+/*const spaceship = game.Model({
   geometry:{
     path: 'assets/models/spaceship.json',
     physics: 'assets/models/spaceship_low.json'
@@ -66,3 +66,4 @@ spaceship.addTo(game,'wait').then(function(obj){
   obj.follow(curve,245000,false);
   spaceship.add(shipSound);
 });
+*/
