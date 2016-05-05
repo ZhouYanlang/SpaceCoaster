@@ -23,22 +23,21 @@ WHS.World.prototype.SpaceControls = function( object, params = {} ) {
             player = mesh,
             pitchObject = new THREE.Object3D(),
             yawObject = new THREE.Object3D(),
-            point = new THREE.Vector3(0,0,1);
+            point   = new THREE.Vector3(0,0,1);
 
-        point.applyQuaternion(mesh.quaternion);
 
+        camera.rotation.set(-Math.PI/2, Math.PI/2, Math.PI/2);
+
+        point.applyQuaternion(camera.getNative().quaternion);
+
+        player.lookAt(point);
+        player.position.z -= 20;
+
+        camera.add(player);
         pitchObject.add( camera.getNative() );
 
-
-
-        camera.position.x -= 10;
-        camera.position.y -= 10;
-        camera.lookAt(point);
-
-        yawObject.rotation.y = mesh.rotation.y;
-        pitchObject.rotation.x = mesh.rotation.x;
-        camera.rotation.z = mesh.rotation.z;
         yawObject.position.y += params.ypos;
+        yawObject.position.z += 12;
         yawObject.add( pitchObject );
 
         let quat = new THREE.Quaternion(),
@@ -61,8 +60,10 @@ WHS.World.prototype.SpaceControls = function( object, params = {} ) {
             let movementX = event.movementX || event.mozMovementX || event.getMovementX() || 0,
                 movementY = event.movementY || event.mozMovementY || event.getMovementY() || 0;
 
-            yawObject.rotation.x -= movementX * 0.002;
-            pitchObject.rotation.y -= movementY * 0.002;
+            yawObject.rotation.y -= movementX * 0.002,
+            pitchObject.rotation.x -= movementY * 0.002;
+
+           pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );
         }
 
         function onKeyDown ( event ) {
@@ -151,9 +152,9 @@ WHS.World.prototype.SpaceControls = function( object, params = {} ) {
         };
 
         this.getDirection = function(targetVec){
-            targetVec.set(0,0,-1);
+            targetVec.set(0,0,1);
             quat.multiplyVector3(targetVec);
-        }
+        };
 
         // Moves the camera to the Cannon.js object position
         // and adds velocity to the object if the run key is down.
