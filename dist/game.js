@@ -208,17 +208,11 @@ var jupiter = game.Model({
   }
 });
 
-setInterval(function () {
-  var rot = sun.rotation;
-  sun.rotation.set(rot.x += 0.01, 0, 0);
-  requestAnimationFrame();
-}, 100);
+var updateSun = new WHS.loop(function (clock) {
+  sun.rotation.x = clock.getElapsedTime() * 1000 / 10000 * Math.PI * 2;
+});
 
-setInterval(function () {
-  var rot = jupiter.rotation;
-  jupiter.rotation.set(rot.x += 0.005, rot.y += 0.005, 0);
-  requestAnimationFrame();
-}, 50);
+updateSun.start();
 'use strict';
 
 var spaceship = game.Model({
