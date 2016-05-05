@@ -6,7 +6,7 @@ var gulp = require('gulp'),
     conkat = require('gulp-concat'),
     stylus = require('gulp-stylus');
 
-var es6Files = ['src/scripts/game.js','src/scripts/**/*.js', '!src/scripts/vendor/**'];
+var es6Files = ['src/scripts/init/*.js', 'src/scripts/game.js','src/scripts/**/*.js', '!src/scripts/vendor/**'];
 var styles = 'src/styles/**/*.styl';
 
 gulp.task('babel', function(){
@@ -45,4 +45,4 @@ gulp.task('stylus', function(){
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('default', ['watch', 'serve']);
+gulp.task('default', ['stylus', 'babel']);
