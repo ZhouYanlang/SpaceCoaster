@@ -163,8 +163,7 @@ var rotateJupiter = new WHS.loop(function(clock){
 
 var rotateMars = new WHS.loop(function(clock){
     var factor = (clock.getElapsedTime() * 1000) / 60000 * Math.PI*2;
-    mars.rotation.x = factor;
-    mars.rotation.y = factor;
+    mars.rotation.z = factor;
 });
 rotateSun.start();
 rotateJupiter.start();

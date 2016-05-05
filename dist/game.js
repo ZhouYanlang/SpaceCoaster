@@ -1,18 +1,5 @@
 'use strict';
 
-/**
- * © Alexander Buzin, 2014-2015
- * Site: http://alexbuzin.me/
- * Email: alexbuzin88@gmail.com
-*/
-
-/**
- * First person controls.
- *
- * @param {Object} object - *WHS* figure/object.
- * @param {Object} params - Controls parameter objects.
- */
-
 var PI_2 = Math.PI / 2;
 
 WHS.World.prototype.SpaceControls = function (object) {
@@ -37,13 +24,22 @@ WHS.World.prototype.SpaceControls = function (object) {
         /* Init */
         var scope = this,
             player = mesh,
-            pitchObject = new THREE.Object3D();
+            pitchObject = new THREE.Object3D(),
+            yawObject = new THREE.Object3D(),
+            point = new THREE.Vector3(0, 0, 1);
+
+        point.applyQuaternion(mesh.quaternion);
 
         pitchObject.add(camera.getNative());
 
-        var yawObject = new THREE.Object3D();
+        camera.position.x -= 10;
+        camera.position.y -= 10;
+        camera.lookAt(point);
 
-        yawObject.position.y = params.ypos; // eyes are 2 meters above the ground
+        yawObject.rotation.y = mesh.rotation.y;
+        pitchObject.rotation.x = mesh.rotation.x;
+        camera.rotation.z = mesh.rotation.z;
+        yawObject.position.y += params.ypos;
         yawObject.add(pitchObject);
 
         var quat = new THREE.Quaternion(),
@@ -64,11 +60,9 @@ WHS.World.prototype.SpaceControls = function (object) {
             var movementX = event.movementX || event.mozMovementX || event.getMovementX() || 0,
                 movementY = event.movementY || event.mozMovementY || event.getMovementY() || 0;
 
-            yawObject.rotation.y -= movementX * 0.002;
-            pitchObject.rotation.x -= movementY * 0.002;
-
-            pitchObject.rotation.x = Math.max(-PI_2, Math.min(PI_2, pitchObject.rotation.x));
-        };
+            yawObject.rotation.x -= movementX * 0.002;
+            pitchObject.rotation.y -= movementY * 0.002;
+        }
 
         function onKeyDown(event) {
 
@@ -102,7 +96,7 @@ WHS.World.prototype.SpaceControls = function (object) {
                     // space
                     if (canJump == true) {
 
-                        player.applyCentralImpulse({ x: 0, y: 300, z: 0 });
+                        player.applyCentralImpulse({ x: 0, y: 0, z: 300 });
                     }
 
                     canJump = false;
@@ -151,7 +145,7 @@ WHS.World.prototype.SpaceControls = function (object) {
                     break;
 
             }
-        }
+        };
 
         document.body.addEventListener('mousemove', onMouseMove, false);
         document.body.addEventListener('keydown', onKeyDown, false);
@@ -209,8 +203,8 @@ WHS.World.prototype.SpaceControls = function (object) {
 
             inputVelocity.applyQuaternion(quat);
 
-            //player.applyCentralImpulse({x: inputVelocity.x * 10, y: 0, z: inputVelocity.z * 10});
-            player.setLinearVelocity({ x: inputVelocity.z * 10, y: 0, z: -inputVelocity.x * 10 });
+            player.applyCentralImpulse({ x: inputVelocity.x * 10, y: 0, z: inputVelocity.z * 10 });
+            player.setAngularVelocity({ x: inputVelocity.z * 10, y: 0, z: -inputVelocity.x * 10 });
             player.setAngularFactor({ x: 0, y: 0, z: 0 });
 
             yawObject.position.copy(player.position);
@@ -219,7 +213,7 @@ WHS.World.prototype.SpaceControls = function (object) {
 
     var controls = this.controls;
 
-    object.getNative().add(this.controls.getObject());
+    this.getScene().add(this.controls.getObject());
 
     if ('pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document) {
 
@@ -363,22 +357,23 @@ var spaceship = game.ConvexModel({
 
     rotation: {
         x: 0,
-        z: 0,
-        y: 0
+        y: 0,
+        z: 0
     },
 
     scale: {
-        x: 1,
-        y: 1,
-        z: 1
+        x: 0.5,
+        y: 0.5,
+        z: 0.5
     }
 });
 
 spaceship.addTo(game, "wait").then(function () {
 
-    game.SpaceControls(spaceship, { // *WHS* object, Pointer lock controls object, Jquery blocker div selector.
+    game.SpaceControls(spaceship, {
         block: document.getElementById('blocker'),
-        speed: 1 // 5
+        speed: 1,
+        ypos: 3 // 5
     });
 });
 "use strict";
@@ -472,9 +467,9 @@ var theSun = game.Model({
   },
 
   scale: {
-    x: 300,
-    y: 300,
-    z: 300
+    x: 500,
+    y: 500,
+    z: 500
   }
 });
 
@@ -501,15 +496,15 @@ var jupiter = game.Model({
 
   mass: 0,
   pos: {
-    x: 650,
+    x: 1000,
     y: 650,
     z: 120
   },
 
   scale: {
-    x: 30,
-    y: 30,
-    z: 30
+    x: 100,
+    y: 100,
+    z: 100
   }
 });
 
@@ -541,9 +536,9 @@ var mars = game.Model({
   },
 
   scale: {
-    x: 20,
-    y: 20,
-    z: 20
+    x: 101,
+    y: 101,
+    z: 101
   }
 });
 
@@ -593,8 +588,7 @@ var rotateJupiter = new WHS.loop(function (clock) {
 
 var rotateMars = new WHS.loop(function (clock) {
   var factor = clock.getElapsedTime() * 1000 / 60000 * Math.PI * 2;
-  mars.rotation.x = factor;
-  mars.rotation.y = factor;
+  mars.rotation.z = factor;
 });
 rotateSun.start();
 rotateJupiter.start();

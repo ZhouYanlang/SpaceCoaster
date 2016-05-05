@@ -34,7 +34,8 @@ spaceship.addTo(game, "wait").then(function () {
 
     game.SpaceControls( spaceship, {
         block: document.getElementById('blocker'),
-        speed: 1 // 5
+        speed: 1,
+        ypos: 3 // 5
     } );
 
 });
