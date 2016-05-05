@@ -118,30 +118,23 @@ var ambient = game.AmbientLight({
     }
 });
 
-var spot = game.SpotLight({
+var spot = game.DirectionalLight({
     light: {
-        color: 0x83DCF9,
-        intensity: 0.8,
-        distance: 500
-    },
-
-    shadowmap: {
-        width: 2048,
-        height: 2048,
-        top: 0,
-        fov: 90
+        color: 0xffffff,
+        intensity: 0.1,
+        distance: 50
     },
 
     pos: {
-        x: 160, // 100,
-        y: 120, // 30,
-        z: 160 },
+        x: 600, // 100,
+        y: 600, // 30,
+        z: 600 },
 
     // 100
     target: {
-        x: 0,
-        y: 0,
-        z: 0
+        x: 450,
+        y: 450,
+        z: 450
     }
 });
 'use strict';
@@ -155,6 +148,7 @@ var sun = game.Model({
 
   material: {
     shading: THREE.SmoothShading,
+    shininess: 0,
     map: sunTexture,
     bunmap: sunTexture,
     kind: 'phong',
@@ -163,7 +157,8 @@ var sun = game.Model({
     doubleSided: true,
     depthWrite: true,
     emissive: 0xffffff,
-    emissiveIntensity: 0.3
+    reflectivity: 0,
+    emissiveIntensity: 0.1
   },
 
   mass: 0,
@@ -174,9 +169,9 @@ var sun = game.Model({
   },
 
   scale: {
-    x: 50,
-    y: 50,
-    z: 50
+    x: 200,
+    y: 200,
+    z: 200
   }
 });
 
@@ -187,6 +182,7 @@ var jupiter = game.Model({
 
   material: {
     shading: THREE.SmoothShading,
+    shininess: 0,
     map: jupiterTexture,
     bunmap: jupiterTexture,
     kind: 'phong',
@@ -195,7 +191,7 @@ var jupiter = game.Model({
     doubleSided: true,
     depthWrite: true,
     emissive: 0xde9fa3,
-    emissiveIntensity: 0.3
+    emissiveIntensity: 0.1
   },
 
   mass: 0,
@@ -214,9 +210,15 @@ var jupiter = game.Model({
 
 setInterval(function () {
   var rot = sun.rotation;
-  sun.rotation.set(rot.x += 0.2, 0, 0);
+  sun.rotation.set(rot.x += 0.01, 0, 0);
   requestAnimationFrame();
-}, 500);
+}, 100);
+
+setInterval(function () {
+  var rot = jupiter.rotation;
+  jupiter.rotation.set(rot.x += 0.005, rot.y += 0.005, 0);
+  requestAnimationFrame();
+}, 50);
 'use strict';
 
 var spaceship = game.Model({

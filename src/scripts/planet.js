@@ -7,6 +7,7 @@ const sun = game.Model({
 
   material: {
     shading: THREE.SmoothShading,
+    shininess:0,
     map: sunTexture,
     bunmap: sunTexture,
     kind: 'phong',
@@ -15,7 +16,8 @@ const sun = game.Model({
     doubleSided:true,
     depthWrite:true,
     emissive: 0xffffff,
-    emissiveIntensity: 0.3
+    reflectivity: 0,
+    emissiveIntensity: 0.1
   },
 
   mass: 0,
@@ -26,9 +28,9 @@ const sun = game.Model({
   },
 
   scale: {
-      x: 50,
-      y: 50,
-      z: 50
+      x: 200,
+      y: 200,
+      z: 200
   },
 });
 
@@ -40,6 +42,7 @@ let jupiter = game.Model({
 
   material: {
     shading: THREE.SmoothShading,
+    shininess:0,
     map: jupiterTexture,
     bunmap: jupiterTexture,
     kind: 'phong',
@@ -48,7 +51,7 @@ let jupiter = game.Model({
     doubleSided:true,
     depthWrite:true,
     emissive: 0xde9fa3,
-    emissiveIntensity: 0.3
+    emissiveIntensity: 0.1
   },
 
   mass: 0,
@@ -67,6 +70,12 @@ let jupiter = game.Model({
 
 setInterval(function(){
     var rot = sun.rotation;
-    sun.rotation.set(rot.x+=0.2, 0,0);
+    sun.rotation.set(rot.x+=0.01, 0,0);
     requestAnimationFrame();
-}, 500);
+}, 100);
+
+setInterval(function(){
+    var rot = jupiter.rotation;
+    jupiter.rotation.set(rot.x+=0.005, rot.y += 0.005,0);
+    requestAnimationFrame();
+}, 50);

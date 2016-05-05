@@ -17,29 +17,22 @@ let ambient = game.AmbientLight({
   }
 });
 
-let spot = game.SpotLight( {
+let spot = game.DirectionalLight( {
     light: {
-        color: 0x83DCF9,
-        intensity: 0.8,
-        distance: 500,
-    },
-
-    shadowmap: {
-        width: 2048,
-        height: 2048,
-        top: 0,
-        fov: 90
+        color: 0xffffff,
+        intensity: 0.1,
+        distance: 50,
     },
 
     pos: {
-        x: 160, // 100,
-        y: 120, // 30,
-        z: 160, // 100
+        x: 600, // 100,
+        y: 600, // 30,
+        z: 600, // 100
     },
 
     target: {
-        x: 0,
-        y: 0,
-        z: 0
+        x: 450,
+        y: 450,
+        z: 450
     }
 } );
