@@ -45,4 +45,4 @@ gulp.task('stylus', function(){
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('default', ['stylus', 'babel']);
+gulp.task('default', ['serve', 'watch']);

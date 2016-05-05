@@ -64,7 +64,8 @@ WHS.World.prototype.SpaceControls = function (object) {
             var movementX = event.movementX || event.mozMovementX || event.getMovementX() || 0,
                 movementY = event.movementY || event.mozMovementY || event.getMovementY() || 0;
 
-            yawObject.rotation.y -= movementX * 0.002, pitchObject.rotation.x -= movementY * 0.002;
+            yawObject.rotation.y -= movementX * 0.002;
+            pitchObject.rotation.x -= movementY * 0.002;
 
             pitchObject.rotation.x = Math.max(-PI_2, Math.min(PI_2, pitchObject.rotation.x));
         };
@@ -150,7 +151,7 @@ WHS.World.prototype.SpaceControls = function (object) {
                     break;
 
             }
-        };
+        }
 
         document.body.addEventListener('mousemove', onMouseMove, false);
         document.body.addEventListener('keydown', onKeyDown, false);
@@ -219,7 +220,6 @@ WHS.World.prototype.SpaceControls = function (object) {
     var controls = this.controls;
 
     object.getNative().add(this.controls.getObject());
-    console.log(object.getNative());
 
     if ('pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document) {
 
@@ -296,7 +296,7 @@ var game = new WHS.World({
 
   camera: {
     far: 10000,
-    aspect: 45
+    aspect: 35
   },
 
   shadowmap: {
@@ -356,9 +356,9 @@ var spaceship = game.ConvexModel({
     mass: 100,
 
     pos: {
-        x: 0,
-        y: 0,
-        z: 0
+        x: 1000,
+        y: 1000,
+        z: 1000
     },
 
     rotation: {
@@ -374,19 +374,7 @@ var spaceship = game.ConvexModel({
     }
 });
 
-/*const camera = new WHS.PerspectiveCamera({
-    pos: {
-        x:0,
-        y:100,
-        z:0
-    }
-});
-
-game.setCamera(camera);*/
-
 spaceship.addTo(game, "wait").then(function () {
-
-    //spaceship.add(camera);
 
     game.SpaceControls(spaceship, { // *WHS* object, Pointer lock controls object, Jquery blocker div selector.
         block: document.getElementById('blocker'),
@@ -444,7 +432,19 @@ var spot = game.DirectionalLight({
 
 var sunTexture = WHS.API.texture('assets/textures/sun.jpg');
 var jupiterTexture = WHS.API.texture('assets/textures/jupiter.jpg');
-var sun = game.Model({
+
+var marsTexture = {
+  map: WHS.API.texture('assets/textures/mars.jpg'),
+  bump: WHS.API.texture('assets/textures/marsmap.jpg')
+};
+
+var saturnTexture = {
+  map: WHS.API.texture('assets/textures/saturnmap.jpg'),
+  ring: WHS.API.texture('assets/textures/saturnringcolor.jpg'),
+  ringPattern: WHS.API.texture('assets/textures/saturnringpattern.jpg')
+};
+
+var theSun = game.Model({
   geometry: {
     path: 'assets/models/ik89123.json'
   },
@@ -453,28 +453,28 @@ var sun = game.Model({
     shading: THREE.SmoothShading,
     shininess: 0,
     map: sunTexture,
-    bunmap: sunTexture,
+    bumpMap: sunTexture,
     kind: 'phong',
     wireframe: false,
     vertexColors: false,
     doubleSided: true,
     depthWrite: true,
-    emissive: 0xffffff,
-    reflectivity: 0,
-    emissiveIntensity: 0.1
+    emissive: 0xeffe75,
+    emissiveIntensity: 0.8,
+    bumpScale: 0.05
   },
 
   mass: 0,
   pos: {
-    x: 500,
-    y: 500,
-    z: 500
+    x: 0,
+    y: 0,
+    z: 0
   },
 
   scale: {
-    x: 200,
-    y: 200,
-    z: 200
+    x: 300,
+    y: 300,
+    z: 300
   }
 });
 
@@ -487,21 +487,57 @@ var jupiter = game.Model({
     shading: THREE.SmoothShading,
     shininess: 0,
     map: jupiterTexture,
-    bunmap: jupiterTexture,
+    bumpMap: jupiterTexture,
     kind: 'phong',
     wireframe: false,
     vertexColors: false,
     doubleSided: true,
     depthWrite: true,
     emissive: 0xde9fa3,
-    emissiveIntensity: 0.1
+    emissiveIntensity: 0.1,
+    bumpScale: 0.05
+
   },
 
   mass: 0,
   pos: {
-    x: 500,
+    x: 650,
     y: 650,
     z: 120
+  },
+
+  scale: {
+    x: 30,
+    y: 30,
+    z: 30
+  }
+});
+
+var mars = game.Model({
+  geometry: {
+    path: 'assets/models/ik89123.json'
+  },
+
+  material: {
+    shading: THREE.SmoothShading,
+    shininess: 0,
+    map: marsTexture.map,
+    bumpMap: marsTexture.bump,
+    kind: 'phong',
+    wireframe: false,
+    vertexColors: false,
+    doubleSided: true,
+    depthWrite: true,
+    emissive: 0xde9fa3,
+    emissiveIntensity: 0.1,
+    bumpScale: 0.05
+  },
+
+  mass: 0,
+  pos: {
+    x: -650,
+    y: -1050,
+    z: -1000
   },
 
   scale: {
@@ -511,80 +547,58 @@ var jupiter = game.Model({
   }
 });
 
-var updateSun = new WHS.loop(function (clock) {
-  sun.rotation.x = clock.getElapsedTime() * 1000 / 10000 * Math.PI * 2;
-});
-
-updateSun.start();
-/*const spaceship = game.Model({
-  geometry:{
-    path: 'assets/models/spaceship.json',
-    physics: 'assets/models/spaceship_low.json'
+var saturn = new WHS.Model({
+  geometry: {
+    path: 'assets/models/ik89123.json'
   },
 
   material: {
+    shading: THREE.SmoothShading,
+    shininess: 0,
+    map: saturnTexture.map,
+    bumpMap: saturnTexture.map,
+    kind: 'phong',
+    wireframe: false,
+    vertexColors: false,
+    doubleSided: true,
+    depthWrite: true,
+    emissive: 0xde9fa3,
+    emissiveIntensity: 0.1,
+    bumpScale: 0.05
   },
 
   mass: 0,
   pos: {
-      x: -1000,
-      y: -1000,
-      z: -1000
-  },
-
-  rotation: {
-      x: 0,
-      z: Math.PI / 4,
-      y: 0,
+    x: -650,
+    y: -2000,
+    z: 375
   },
 
   scale: {
-      x: 1,
-      y: 1,
-      z: 1
-  },
+    x: 20,
+    y: 20,
+    z: 20
+  }
 });
-var curve = new THREE.CurvePath();
-curve.add(
-    new THREE.CubicBezierCurve3(
-        new THREE.Vector3( -1000, -1000, -1000),
-        new THREE.Vector3( -865, -650, -525 ),
-        new THREE.Vector3( -350, -350, -225 ),
-       new THREE.Vector3( -100, -100, -100 )
-    )
-);
-curve.add(
-    new THREE.CubicBezierCurve3(
-        new THREE.Vector3( -100, -100, -100 ),
-        new THREE.Vector3( 0, 0, 0 ),
-        new THREE.Vector3( 25, 125, 0),
-        new THREE.Vector3( 200, 100, 350 )
-    )
-);
-curve.add(
-    new THREE.CubicBezierCurve3(
-        new THREE.Vector3( 200, 100, 350 ),
-        new THREE.Vector3( 350, 250, 350 ),
-        new THREE.Vector3( 650, 750,  750 ),
-        new THREE.Vector3( 1000, 1000, 1000 )
-    )
-);
 
-curve.add(
-    new THREE.CubicBezierCurve3(
-        new THREE.Vector3( 1000, 1000, 1000 ),
-        new THREE.Vector3( 1250, 1250, 3500 ),
-        new THREE.Vector3( 6500, 7500,  7500 ),
-        new THREE.Vector3( 10000, 10000, 10000 )
-    )
-);
-
-
-spaceship.addTo(game,'wait').then(function(obj){
-  obj.follow(curve,245000,false);
-  spaceship.add(shipSound);
+var rotateSun = new WHS.loop(function (clock) {
+  theSun.rotation.x = clock.getElapsedTime() * 1000 / 50000 * Math.PI * 2;
 });
-*/
+
+var rotateJupiter = new WHS.loop(function (clock) {
+  var factor = clock.getElapsedTime() * 1000 / 70000 * Math.PI * 2;
+  jupiter.rotation.x = factor;
+  jupiter.rotation.y = factor;
+});
+
+var rotateMars = new WHS.loop(function (clock) {
+  var factor = clock.getElapsedTime() * 1000 / 60000 * Math.PI * 2;
+  mars.rotation.x = factor;
+  mars.rotation.y = factor;
+});
+rotateSun.start();
+rotateJupiter.start();
+rotateMars.start();
 "use strict";
 "use strict";
 

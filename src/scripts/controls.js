@@ -11,9 +11,9 @@ const spaceship = game.ConvexModel({
   mass: 100,
 
   pos: {
-      x: 0,
-      y: 0,
-      z: 0
+      x: 1000,
+      y: 1000,
+      z: 1000
   },
 
   rotation: {
@@ -29,24 +29,12 @@ const spaceship = game.ConvexModel({
   },
 });
 
-/*const camera = new WHS.PerspectiveCamera({
-    pos: {
-        x:0,
-        y:100,
-        z:0
-    }
-});
-
-game.setCamera(camera);*/
-
 
 spaceship.addTo(game, "wait").then(function () {
-
-    //spaceship.add(camera);
 
     game.SpaceControls( spaceship, { // *WHS* object, Pointer lock controls object, Jquery blocker div selector.
         block: document.getElementById('blocker'),
         speed: 1 // 5
     } );
 
-})
+});

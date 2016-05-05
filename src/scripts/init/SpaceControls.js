@@ -63,7 +63,7 @@ WHS.World.prototype.SpaceControls = function( object, params = {} ) {
             let movementX = event.movementX || event.mozMovementX || event.getMovementX() || 0,
                 movementY = event.movementY || event.mozMovementY || event.getMovementY() || 0;
 
-            yawObject.rotation.y -= movementX * 0.002,
+            yawObject.rotation.y -= movementX * 0.002;
             pitchObject.rotation.x -= movementY * 0.002;
 
             pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );
@@ -142,7 +142,7 @@ WHS.World.prototype.SpaceControls = function( object, params = {} ) {
 
             }
 
-        };
+        }
 
         document.body.addEventListener( 'mousemove', onMouseMove, false );
         document.body.addEventListener( 'keydown', onKeyDown, false );
@@ -157,7 +157,7 @@ WHS.World.prototype.SpaceControls = function( object, params = {} ) {
         this.getDirection = function(targetVec){
             targetVec.set(0,0,-1);
             quat.multiplyVector3(targetVec);
-        }
+        };
 
         // Moves the camera to the Cannon.js object position
         // and adds velocity to the object if the run key is down.
@@ -214,7 +214,6 @@ WHS.World.prototype.SpaceControls = function( object, params = {} ) {
     let controls = this.controls;
 
     object.getNative().add( this.controls.getObject() );
-    console.log(object.getNative());
 
     if ('pointerLockElement' in document ||
         'mozPointerLockElement' in document ||
@@ -239,7 +238,7 @@ WHS.World.prototype.SpaceControls = function( object, params = {} ) {
 
             }
 
-        }
+        };
 
     } else {
 
@@ -253,7 +252,7 @@ WHS.World.prototype.SpaceControls = function( object, params = {} ) {
 
     this.pointerlockerror = function() {
         console.warn("Pointer lock error.");
-    }
+    };
 
     document.addEventListener('pointerlockerror', this.pointerlockerror, false);
     document.addEventListener('mozpointerlockerror', this.pointerlockerror, false);
@@ -283,7 +282,7 @@ WHS.World.prototype.SpaceControls = function( object, params = {} ) {
                         element.requestPointerLock();
 
                 }
-            }
+            };
 
             document.addEventListener('fullscreenchange', fullscreenchange, false);
             document.addEventListener('mozfullscreenchange', fullscreenchange, false);
@@ -295,4 +294,4 @@ WHS.World.prototype.SpaceControls = function( object, params = {} ) {
 
     } );
 
-}
+};
