@@ -65,8 +65,14 @@ let jupiter = game.Model({
   }
 });
 
-setInterval(function(){
+/*setInterval(function(){
     var rot = sun.rotation;
     sun.rotation.set(rot.x+=0.2, 0,0);
     requestAnimationFrame();
-}, 500);
+}, 500);*/
+
+var updateSun = new WHS.loop(function ( clock ) {
+    sun.rotation.x = (clock.getElapsedTime() * 1000) / 10000 * Math.PI*2;
+});
+
+updateSun.start();
