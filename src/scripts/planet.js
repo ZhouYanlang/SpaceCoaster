@@ -40,9 +40,9 @@ const theSun = game.Model({
   },
 
   scale: {
-      x: 300,
-      y: 300,
-      z: 300
+      x: 500,
+      y: 500,
+      z: 500
   },
 });
 
@@ -70,15 +70,15 @@ let jupiter = game.Model({
 
   mass: 0,
   pos: {
-      x: 650,
+      x: 1000,
       y: 650,
       z: 120
   },
 
   scale: {
-      x: 30,
-      y: 30,
-      z: 30
+      x: 100,
+      y: 100,
+      z: 100
   }
 });
 
@@ -110,9 +110,9 @@ let mars = game.Model({
   },
 
   scale: {
-      x: 20,
-      y: 20,
-      z: 20
+      x: 101,
+      y: 101,
+      z: 101
   }
 });
 

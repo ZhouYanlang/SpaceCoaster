@@ -18,21 +18,21 @@ const spaceship = game.ConvexModel({
 
   rotation: {
       x: 0,
-      z: 0,
       y: 0,
+      z: 0
   },
 
   scale: {
-      x: 1,
-      y: 1,
-      z: 1
+      x: 0.5,
+      y: 0.5,
+      z: 0.5
   },
 });
 
 
 spaceship.addTo(game, "wait").then(function () {
 
-    game.SpaceControls( spaceship, { // *WHS* object, Pointer lock controls object, Jquery blocker div selector.
+    game.SpaceControls( spaceship, {
         block: document.getElementById('blocker'),
         speed: 1 // 5
     } );
