@@ -1,206 +1,185 @@
 const PI_2 = Math.PI/2;
 
-WHS.World.prototype.SpaceControls = function( object, params = {} ) {
-
+WHS.World.prototype.SpaceControls = function(object, params={}) {
     'use strict';
 
     let target = WHS.API.extend(params, {
-        block: document.getElementById('blocker'),
-        speed: 1,
-        ypos: 1
+      block: document.getElementById('blocker'),
+      spedd: 1,
+      ypos: 5
     });
 
-    this.controls = new (function ( camera, mesh, params) {
+    this.controls = new (function(camera,  mesh, parms){
+      let inputVelocity = new THREE.Vector3(),
+          euler = new THREE.Euler();
 
-        /* Velocity properties */
-        let velocityFactor = 1,
-            runVelocity = 0.25;
+      let speedFactor = 1.0,
+          rollSpeed = 0.005;
 
-        //mesh.setAngularFactor({x: 0, y: 0, z: 0});
+      let quat = new THREE.Quaternion(),
+          moveState = { left: false, right: false, forward: false, back: false,
+                        pitch: 0, yaw: 0, roll:0},
+          moveVector = new THREE.Vector3(0, 0, 0),
+          rotationVector = new THREE.Vector3(0, 0, 0),
+          canJump = false;
 
-        /* Init */
-        let scope = this,
-            player = mesh || new THREE.Object3D(),
-            pitchObject = new THREE.Object3D(),
-            yawObject = new THREE.Object3D(),
-            rollObject = new TREE.Object3D();
+      mesh.setAngularFactor({x: 0, y: 0, z: 0});
 
+      let scope = this,
+          player = mesh,
+          pitchObject = new THREE.Object3D(),
+          yawObject = new THREE.Object3D();
 
-        camera.add(player);
-        roll.add(camera.getNative());
-        pitchObject.add(rollObject);
-        yawObject.add( pitchObject );
+      pitchObject.add( camera.getNative() );
 
-        let quat = new THREE.Quaternion(),
-                   canJump = false;
+      yawObject.position.y = params.ypos; // eyes are 2 meters above the ground
+      yawObject.add( pitchObject );
 
-        player.addEventListener("collision", function(other_object, v, r, contactNormal){
-            if(contactNormal.y < 0.5) // Use a "good" threshold value between 0 and 1 here!
-                    canJump = true;
-        });
+      function onMouseMove ( event ) {
+        if ( scope.enabled === false ) return;
 
-        function onMouseMove ( event ) {
-            if ( scope.enabled === false ) return;
+        let movementX = event.movementX || event.mozMovementX || event.getMovementX() || 0,
+            movementY = event.movementY || event.mozMovementY || event.getMovementY() || 0;
 
-            let movementX = event.movementX || event.mozMovementX || event.getMovementX() || 0,
-                movementY = event.movementY || event.mozMovementY || event.getMovementY() || 0;
+        yawObject.rotation.y -= movementX * 0.002;
+        pitchObject.rotation.x -= movementY * 0.002;
+      }
 
-            let rotationAxis1 = movementX * 0.002,
-                rotationAxis2 = movementY * 0.002,
-                axisVector = THREE.Vector3(0,0,-1);
+      function onKeyDown ( event ) {
+        switch ( event.keyCode ) {
+          case 38: // up
+          case 87: // w
+            moveState.forward = true;
+            break;
 
-            let rotationMatrix = new THREE.Matrix4();
+          case 37: // left
+          case 65: // a
+            moveState.left = true;
+            break;
 
-            let normal = axisVector.normalize();
+          case 40: // down
+          case 83: // s
+            moveState.back = true;
+            break;
 
-            axisVector.applyQuaternion(player.quaternion);
+          case 39: // right
+          case 68: // d
+            moveState.right = true;
+            break;
 
-            rotationMatrix.makeRotationAxis(axisVector.normalize(), radians);
-            /*rawObject.rotation.y -= movementX * 0.002,
-            pitchObject.rotation.x -= movementY * 0.002;
+          case 32: // space
+            if ( canJump ){
+              player.applyCentralImpulse({x: 0, y: 0, z: -300});
+            }
+            canJump = false;
+          break;
 
-           pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );*/
+          case 16: // shift
+            addedSpeed = 0.5;
+            break;
+
+          case 81:
+            moveState.roll = -1;
+            break;
+
+          case 69:
+            moveState.roll = 1;
+            break;
+        }
+      }
+
+      function onKeyUp ( event ) {
+        switch( event.keyCode ) {
+
+          case 38: // up
+          case 87: // w
+            moveState.forward = false;
+            break;
+
+          case 37: // left
+          case 65: // a
+            moveState.left = false;
+            break;
+
+          case 40: // down
+          case 83: // a
+            moveState.back = false;
+            break;
+
+          case 39: // right
+          case 68: // d
+            moveState.right = false;
+            break;
+
+          case 16: // shift
+            speedFactor = 0.25;
+            break;
+
+          case 81:
+          case 69:
+            moveState.roll = 0;
+            break;
+        }
+      }
+
+      this.getObject = function () {
+        return yawObject;
+      };
+
+      this.getDirection = function(targetVec){
+        targetVec.set(0,0,-1);
+        quat.multiplyVector3(targetVec);
+      };
+
+      this.update = function(delta) {
+        let moveVec = new THREE.Vector3();
+
+        if ( scope.enabled === false ) return;
+
+        inputVelocity.set(0,0,0);
+        moveState.roll = moveState.roll * PI_2 / 2;
+        delta = delta || 0.5;
+        delta = Math.min(delta, 0.5);
+
+        var speed = delta * speedFactor * params.speed;
+        var rotMult = delta * rollSpeed;
+
+        if(moveState.forward){
+          inputVelocity.z = -speed;
         }
 
-        function onKeyDown ( event ) {
+        if(moveState.back){
+          inputVelocity.z = speed;
+        }
 
-            switch ( event.keyCode ) {
+        if(moveState.left){
+          inputVelocity.x = -speed;
+        }
 
-                case 38: // up
-                case 87: // w
-                    moveForward = true;
-                    break;
+        if(moveState.right){
+          inputVelocity.x = speed;
+        }
 
-                case 37: // left
-                case 65: // a
-                    moveLeft = true;
-                    break;
+        euler.x = pitchObject.rotation.x;
+        euler.y = yawObject.rotation.y;
+        euler.order = "XYZ";
 
-                case 40: // down
-                case 83: // s
-                    moveBackward = true;
-                    break;
+        quat.setFromEuler(euler);
 
-                case 39: // right
-                case 68: // d
-                    moveRight = true;
-                    break;
+        inputVelocity.applyQuaternion(quat);
 
-                case 32: // space
-                    if ( canJump == true ){
+        player.applyCentralImpulse({
+           x: inputVelocity.x * 10,
+           y: inputVelocity.y * 10,
+           z: inputVelocity.z * 10
+        });
 
-                            player.applyCentralImpulse({x: 0, y: 0, z: 300});
+        yawObject.position.copy(player.position);
+    };
 
-                    }
-
-                    canJump = false;
-
-                    break;
-
-                case 16: // shift
-
-                        runVelocity = 0.5;
-                        break;
-
-            }
-
-        };
-
-        function onKeyUp ( event ) {
-            switch( event.keyCode ) {
-
-                case 38: // up
-                case 87: // w
-                    moveForward = false;
-                    break;
-
-                case 37: // left
-                case 65: // a
-                    moveLeft = false;
-                    break;
-
-                case 40: // down
-                case 83: // a
-                    moveBackward = false;
-                    break;
-
-                case 39: // right
-                case 68: // d
-                    moveRight = false;
-                    break;
-
-                case 16: // shift
-                    runVelocity = 0.25;
-                    break;
-
-            }
-
-        };
-
-        document.body.addEventListener( 'mousemove', onMouseMove, false );
-        document.body.addEventListener( 'keydown', onKeyDown, false );
-        document.body.addEventListener( 'keyup', onKeyUp, false );
-
-        this.enabled = false;
-
-        this.getObject = function () {
-            return yawObject;
-        };
-
-        this.getDirection = function(targetVec){
-            targetVec.set(0,0,1);
-            quat.multiplyVector3(targetVec);
-        };
-
-        // Moves the camera to the Cannon.js object position
-        // and adds velocity to the object if the run key is down.
-        let inputVelocity = new THREE.Vector3(),
-            euler = new THREE.Euler();
-
-        this.update = function ( delta ) {
-
-            let moveVec = new THREE.Vector3();
-
-            if ( scope.enabled === false ) return;
-
-            delta = delta || 0.5;
-            delta = Math.min(delta, 0.5);
-
-            inputVelocity.set(0,0,0);
-
-            let speed = velocityFactor * delta * params.speed * runVelocity;
-
-            if ( moveForward ){
-                inputVelocity.z = -speed;
-            }
-
-            if ( moveBackward ){
-                inputVelocity.z = speed;
-            }
-
-            if ( moveLeft ){
-                inputVelocity.x = -speed;
-            }
-
-            if ( moveRight ){
-                inputVelocity.x = speed;
-            }
-
-            // Convert velocity to world coordinates
-            euler.x = pitchObject.rotation.x,
-            euler.y = yawObject.rotation.y,
-            euler.order = "XYZ";
-
-            quat.setFromEuler(euler);
-
-            inputVelocity.applyQuaternion(quat);
-
-            player.applyCentralImpulse({x: inputVelocity.x * 10, y: 0, z: inputVelocity.z * 10});
-            player.setAngularVelocity({x: inputVelocity.z * 10, y: 0, z: -inputVelocity.x * 10});
-            player.setAngularFactor({x: 0, y: 0, z: 0});
-
-            yawObject.position.copy(player.position);
-        };
+    document.body.addEventListener( 'mousemove', onMouseMove, false );
+    document.body.addEventListener( 'keydown', onKeyDown, false );
+    document.body.addEventListener( 'keyup', onKeyUp, false );
 
     })(this.getCamera(), object.getNative(), target);
 
@@ -212,31 +191,29 @@ WHS.World.prototype.SpaceControls = function( object, params = {} ) {
         'mozPointerLockElement' in document ||
         'webkitPointerLockElement' in document) {
 
-        var element = document.body;
+          var element = document.body;
 
-        this.pointerlockchange = function() {
+          this.pointerlockchange = function() {
             if (document.pointerLockElement === element ||
                 document.mozPointerLockElement === element ||
-                document.webkitPointerLockElement === element) {
+                document.webkitPointerLockElement === element ) {
 
                 controls.enabled = true;
-
                 target.block.fadeOut();
 
-            } else {
+            }
+            else {
 
-                controls.enabled = false;
+              controls.enabled = false;
 
-                target.block.fadeIn();
-
+              target.block.fadeIn();
             }
 
-        }
+          };
 
-    } else {
-
-        console.warn("Your browser does not support the PointerLock WHS.API.");
-
+    }
+    else {
+      console.warn("Your browser does not support the PointerLock WHS.API.");
     }
 
     document.addEventListener('pointerlockchange', this.pointerlockchange, false);
@@ -244,8 +221,8 @@ WHS.World.prototype.SpaceControls = function( object, params = {} ) {
     document.addEventListener('webkitpointerlockchange', this.pointerlockchange, false);
 
     this.pointerlockerror = function() {
-        console.warn("Pointer lock error.");
-    }
+      console.warn("Pointer lock error.");
+    };
 
     document.addEventListener('pointerlockerror', this.pointerlockerror, false);
     document.addEventListener('mozpointerlockerror', this.pointerlockerror, false);
@@ -253,38 +230,35 @@ WHS.World.prototype.SpaceControls = function( object, params = {} ) {
 
     target.block.addEventListener('click', function() {
 
-        element.requestPointerLock = element.requestPointerLock ||
-                                     element.mozRequestPointerLock ||
-                                     element.webkitRequestPointerLock;
+      element.requestPointerLock = element.requestPointerLock ||
+                                   element.mozRequestPointerLock ||
+                                   element.webkitRequestPointerLock;
 
-        element.requestFullscreen = element.requestFullscreen ||
-                                    element.mozRequestFullscreen ||
-                                    element.mozRequestFullScreen ||
-                                    element.webkitRequestFullscreen;
+      element.requestFullscreen = element.requestFullscreen ||
+                                  element.mozRequestFullscreen ||
+                                  element.mozRequestFullScreen ||
+                                  element.webkitRequestFullscreen;
+      if (/Firefox/i.test(navigator.userAgent)) {
 
-        if (/Firefox/i.test(navigator.userAgent)) {
+        var fullscreenchange = function() {
+            if (document.fullscreenElement === element ||
+                document.mozFullscreenElement === element ||
+                document.mozFullScreenElement === element) {
 
-            var fullscreenchange = function() {
-                if (document.fullscreenElement === element ||
-                    document.mozFullscreenElement === element ||
-                    document.mozFullScreenElement === element) {
-
-                        document.removeEventListener('fullscreenchange', fullscreenchange);
-                        document.removeEventListener('mozfullscreenchange', fullscreenchange);
-
-                        element.requestPointerLock();
-
-                }
+                    document.removeEventListener('fullscreenchange', fullscreenchange);
+                    document.removeEventListener('mozfullscreenchange', fullscreenchange);
+                    element.requestPointerLock();
             }
+        };
 
-            document.addEventListener('fullscreenchange', fullscreenchange, false);
-            document.addEventListener('mozfullscreenchange', fullscreenchange, false);
+        document.addEventListener('fullscreenchange', fullscreenchange, false);
+        document.addEventListener('mozfullscreenchange', fullscreenchange, false);
 
-            element.requestFullscreen();
+        element.requestFullscreen();
 
-        } else
-            element.requestPointerLock();
-
-    } );
-
-}
+      }
+      else{
+        element.requestPointerLock();
+      }
+  });
+};
