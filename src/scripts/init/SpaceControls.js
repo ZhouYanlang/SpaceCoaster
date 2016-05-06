@@ -20,34 +20,19 @@ WHS.World.prototype.SpaceControls = function( object, params = {} ) {
 
         /* Init */
         let scope = this,
-            player = mesh,
+            player = mesh || new THREE.Object3D(),
             pitchObject = new THREE.Object3D(),
             yawObject = new THREE.Object3D(),
-            point   = new THREE.Vector3(0,0,1);
+            rollObject = new TREE.Object3D();
 
-
-        camera.rotation.set(-Math.PI/2, Math.PI/2, Math.PI/2);
-
-        point.applyQuaternion(camera.getNative().quaternion);
-
-        player.lookAt(point);
-        player.position.z -= 20;
 
         camera.add(player);
-        pitchObject.add( camera.getNative() );
-
-        yawObject.position.y += params.ypos;
-        yawObject.position.z += 12;
+        roll.add(camera.getNative());
+        pitchObject.add(rollObject);
         yawObject.add( pitchObject );
 
         let quat = new THREE.Quaternion(),
-
-            moveForward = false,
-            moveBackward = false,
-            moveLeft = false,
-            moveRight = false,
-
-            canJump = false;
+                   canJump = false;
 
         player.addEventListener("collision", function(other_object, v, r, contactNormal){
             if(contactNormal.y < 0.5) // Use a "good" threshold value between 0 and 1 here!
@@ -60,10 +45,21 @@ WHS.World.prototype.SpaceControls = function( object, params = {} ) {
             let movementX = event.movementX || event.mozMovementX || event.getMovementX() || 0,
                 movementY = event.movementY || event.mozMovementY || event.getMovementY() || 0;
 
-            yawObject.rotation.y -= movementX * 0.002,
+            let rotationAxis1 = movementX * 0.002,
+                rotationAxis2 = movementY * 0.002,
+                axisVector = THREE.Vector3(0,0,-1);
+
+            let rotationMatrix = new THREE.Matrix4();
+
+            let normal = axisVector.normalize();
+
+            axisVector.applyQuaternion(player.quaternion);
+
+            rotationMatrix.makeRotationAxis(axisVector.normalize(), radians);
+            /*rawObject.rotation.y -= movementX * 0.002,
             pitchObject.rotation.x -= movementY * 0.002;
 
-           pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );
+           pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );*/
         }
 
         function onKeyDown ( event ) {

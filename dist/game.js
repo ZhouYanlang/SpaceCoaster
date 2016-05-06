@@ -23,30 +23,17 @@ WHS.World.prototype.SpaceControls = function (object) {
 
         /* Init */
         var scope = this,
-            player = mesh,
+            player = mesh || new THREE.Object3D(),
             pitchObject = new THREE.Object3D(),
             yawObject = new THREE.Object3D(),
-            point = new THREE.Vector3(0, 0, 1);
-
-        camera.rotation.set(-Math.PI / 2, Math.PI / 2, Math.PI / 2);
-
-        point.applyQuaternion(camera.getNative().quaternion);
-
-        player.lookAt(point);
-        player.position.z -= 20;
+            rollObject = new TREE.Object3D();
 
         camera.add(player);
-        pitchObject.add(camera.getNative());
-
-        yawObject.position.y += params.ypos;
-        yawObject.position.z += 12;
+        roll.add(camera.getNative());
+        pitchObject.add(rollObject);
         yawObject.add(pitchObject);
 
         var quat = new THREE.Quaternion(),
-            moveForward = false,
-            moveBackward = false,
-            moveLeft = false,
-            moveRight = false,
             canJump = false;
 
         player.addEventListener("collision", function (other_object, v, r, contactNormal) {
@@ -60,9 +47,20 @@ WHS.World.prototype.SpaceControls = function (object) {
             var movementX = event.movementX || event.mozMovementX || event.getMovementX() || 0,
                 movementY = event.movementY || event.mozMovementY || event.getMovementY() || 0;
 
-            yawObject.rotation.y -= movementX * 0.002, pitchObject.rotation.x -= movementY * 0.002;
+            var rotationAxis1 = movementX * 0.002,
+                rotationAxis2 = movementY * 0.002,
+                axisVector = THREE.Vector3(0, 0, -1);
 
-            pitchObject.rotation.x = Math.max(-PI_2, Math.min(PI_2, pitchObject.rotation.x));
+            var rotationMatrix = new THREE.Matrix4();
+
+            var normal = axisVector.normalize();
+
+            axisVector.applyQuaternion(player.quaternion);
+
+            rotationMatrix.makeRotationAxis(axisVector.normalize(), radians);
+            /*rawObject.rotation.y -= movementX * 0.002,
+            pitchObject.rotation.x -= movementY * 0.002;
+            pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );*/
         }
 
         function onKeyDown(event) {
