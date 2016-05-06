@@ -33,6 +33,9 @@ WHS.World.prototype.SpaceControls = function (object) {
         pitchObject = new THREE.Object3D(),
         yawObject = new THREE.Object3D();
 
+    mesh.position.z -= 10;
+
+    camera.add(mesh);
     pitchObject.add(camera.getNative());
 
     yawObject.position.y = params.ypos; // eyes are 2 meters above the ground
